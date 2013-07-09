@@ -377,17 +377,20 @@ func Set(name, value string) error {
 // otherwise, the default values of all defined flags in the set.
 func (f *FlagSet) PrintDefaults() {
 	f.VisitAll(func(flag *Flag) {
-		format := "--%s=%s: %s\n"
+		format := "--%s=%s %s %s\n"
+		pad := 20
 		if _, ok := flag.Value.(*stringValue); ok {
 			// put quotes on the value
-			format = "--%s=%q: %s\n"
+			format = "--%s=%q %s %s\n"
+			pad -= 2
 		}
 		if len(flag.Shorthand) > 0 {
 			format = "  -%s, " + format
 		} else {
 			format = "   %s   " + format
 		}
-		fmt.Fprintf(f.out(), format, flag.Shorthand, flag.Name, flag.DefValue, flag.Usage)
+		fmt.Fprintf(f.out(), format, flag.Shorthand, flag.Name, flag.DefValue,
+			strings.Repeat(" ", pad-len(flag.DefValue)-len(flag.Name)), flag.Usage)
 	})
 }
 

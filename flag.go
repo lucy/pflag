@@ -961,10 +961,18 @@ func (f *FlagSet) parseArgs(args []string) error {
 				return f.failf("unknown flag: --%s", name)
 			}
 			if len(split) == 1 {
-				if _, ok := flag.Value.(*boolValue); !ok {
+				if _, ok := flag.Value.(*boolValue); ok {
+					f.setFlag(flag, "true", s)
+					continue
+				}
+				if len(args) == 0 {
 					return f.failf("flag needs an argument: %s", s)
 				}
-				f.setFlag(flag, "true", s)
+				if err := f.setFlag(flag, args[0], s); err != nil {
+					return err
+				}
+				args = args[1:]
+				break
 			} else {
 				if err := f.setFlag(flag, split[1], s); err != nil {
 					return err
